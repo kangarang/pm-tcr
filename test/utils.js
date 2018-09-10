@@ -138,7 +138,7 @@ const utils = {
         paramConfig.voteQuorum,
         paramConfig.pVoteQuorum,
       ],
-      'The TestChain Registry',
+      config.name,
     );
 
     const {
