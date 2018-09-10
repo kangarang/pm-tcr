@@ -346,8 +346,8 @@ contract Registry {
     }
 
     /**
-    @dev                Determines whether the given listingHash be whitelisted.
-    @param _listingHash The listingHash whose status is to be examined
+    @dev                        Determines whether the given listingHash be whitelisted.
+    @param _listingHash         The listingHash whose status is to be examined
     */
     function canBeWhitelisted(bytes32 _listingHash) public view returns (bool) {
         uint challengeID = listings[_listingHash].challengeID;
@@ -367,24 +367,24 @@ contract Registry {
     }
 
     /**
-    @dev                Returns true if the provided listingHash is whitelisted
-    @param _listingHash The listingHash whose status is to be examined
+    @dev                    Returns true if the provided listingHash is whitelisted
+    @param _listingHash     The listingHash whose status is to be examined
     */
     function isWhitelisted(bytes32 _listingHash) public view returns (bool whitelisted) {
         return listings[_listingHash].whitelisted;
     }
 
     /**
-    @dev                Returns true if apply was called for this listingHash
-    @param _listingHash The listingHash whose status is to be examined
+    @dev                    Returns true if apply was called for this listingHash
+    @param _listingHash     The listingHash whose status is to be examined
     */
     function appWasMade(bytes32 _listingHash) public view returns (bool exists) {
         return listings[_listingHash].applicationExpiry > 0;
     }
 
     /**
-    @dev                Returns true if the application/listingHash has an unresolved challenge
-    @param _listingHash The listingHash whose status is to be examined
+    @dev                    Returns true if the application/listingHash has an unresolved challenge
+    @param _listingHash     The listingHash whose status is to be examined
     */
     function challengeExists(bytes32 _listingHash) public view returns (bool) {
         uint challengeID = listings[_listingHash].challengeID;
@@ -393,9 +393,9 @@ contract Registry {
     }
 
     /**
-    @dev                Determines whether voting has concluded in a challenge for a given
-                        listingHash. Throws if no challenge exists.
-    @param _listingHash A listingHash with an unresolved challenge
+    @dev                    Determines whether voting has concluded in a challenge for a given listingHash.
+                            Throws if no challenge exists.
+    @param _listingHash     A listingHash with an unresolved challenge
     */
     function challengeCanBeResolved(bytes32 _listingHash) public view returns (bool) {
         uint challengeID = listings[_listingHash].challengeID;
@@ -406,8 +406,8 @@ contract Registry {
     }
 
     /**
-    @dev                Determines the number of tokens awarded to the winning party in a challenge.
-    @param _challengeID The challengeID to determine a reward for
+    @dev                    Determines the number of tokens awarded to the winning party in a challenge.
+    @param _challengeID     The challengeID to determine a reward for
     */
     function determineReward(uint _challengeID) public view returns (uint) {
         require(!challenges[_challengeID].resolved && voting.pollEnded(_challengeID));
@@ -421,9 +421,9 @@ contract Registry {
     }
 
     /**
-    @dev                Getter for Challenge tokenClaims mappings
-    @param _challengeID The challengeID to query
-    @param _voter       The voter whose claim status to query for the provided challengeID
+    @dev                    Getter for Challenge tokenClaims mappings.
+    @param _challengeID     The challengeID to query
+    @param _voter           The voter whose claim status to query for the provided challengeID
     */
     function tokenClaims(uint _challengeID, address _voter) public view returns (bool) {
         return challenges[_challengeID].tokenClaims[_voter];
@@ -434,9 +434,9 @@ contract Registry {
     // ----------------
 
     /**
-    @dev                Determines the winner in a challenge. Rewards the winner tokens and
-                        either whitelists or de-whitelists the listingHash.
-    @param _listingHash A listingHash with a challenge that is to be resolved
+    @dev                    Determines the winner in a challenge. Rewards the winner tokens and
+                            either whitelists or de-whitelists the listingHash.
+    @param _listingHash     A listingHash with a challenge that is to be resolved
     */
     function resolveChallenge(bytes32 _listingHash) private {
         uint challengeID = listings[_listingHash].challengeID;
@@ -455,7 +455,7 @@ contract Registry {
         challenge.totalTokens = totalWinningTokens;
 
         // store the current epoch
-        challenge.epochNumber = bank.getCurrentEpoch();
+        challenge.epochNumber = bank.getCurrentEpochNumber();
         // add the totalWinningTokens to the epoch's total tokens tally
         require(bank.addChallengeWinningTokens(challenge.epochNumber, totalWinningTokens));
 
@@ -478,10 +478,10 @@ contract Registry {
     }
 
     /**
-    @dev                Called by updateStatus() if the applicationExpiry date passed without a
-                        challenge being made. Called by resolveChallenge() if an
-                        application/listing beat a challenge.
-    @param _listingHash The listingHash of an application/listingHash to be whitelisted
+    @dev                    Called by updateStatus() if the applicationExpiry date passed without a
+                            challenge being made. Called by resolveChallenge() if an
+                            application/listing beat a challenge.
+    @param _listingHash     The listingHash of an application/listingHash to be whitelisted
     */
     function whitelistApplication(bytes32 _listingHash) private {
         if (!listings[_listingHash].whitelisted) { emit _ApplicationWhitelisted(_listingHash); }
@@ -489,8 +489,8 @@ contract Registry {
     }
 
     /**
-    @dev                Deletes a listingHash from the whitelist and transfers tokens back to owner
-    @param _listingHash The listing hash to delete
+    @dev                    Deletes a listingHash from the whitelist and transfers tokens back to owner
+    @param _listingHash     The listing hash to delete
     */
     function resetListing(bytes32 _listingHash) private {
         Listing storage listing = listings[_listingHash];

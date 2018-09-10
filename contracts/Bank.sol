@@ -30,12 +30,14 @@ contract Bank {
     // Maps epochNumbers to associated Epoch data
     mapping(uint => Epoch) public epochs;
 
-    // Authorization for state-changing functions
+    // Authorization for state changes
     modifier onlyOwner() {
         require(msg.sender == owner, "Message sender is not authorized");
         _;
     }
 
+    // TODO: convert to factory/proxy convention
+    // TODO: accept EPOCH_DURATION and INFLATION_DENOMINATOR as init args
     /**
     @dev            Initializer. Can only be called once.
     @notice         Sets the owner, the ERC20 token, and the BIRTH_DATE
@@ -50,7 +52,7 @@ contract Bank {
 
     /**
     @dev                        Keeps tally of the total number of tokens revealed by a majority faction
-    @notice                     Invoked during resolveChallenge
+    @notice                     Invoked during Registry.resolveChallenge()
     @param _epochNumber         The epoch to increment total tokens
     @param _totalWinningTokens  The number of tokens revealed by a majority faction
     */
@@ -64,7 +66,7 @@ contract Bank {
 
     /**
     @dev                    Adds the number of tokens revealed by a majority faction voter
-    @notice                 Invoked during claimReward
+    @notice                 Invoked during Registry.claimReward()
     @param _epochNumber     The epoch to increment voterTokens
     @param _voter           The address of a voter who claimed rewards during an epoch
     @param _numTokens       The number of token rewards claimed by a voter
@@ -79,11 +81,11 @@ contract Bank {
     /**
     @dev                    Resolves an epoch, adds the appropriate inflation amount to the epoch,
                             then transfers that amount to the Registry
-    @notice                 Invoked during claimInflationRewards
+    @notice                 Invoked during Registry.claimInflationRewards()
     @param _epochNumber     The epoch number being resolved
     */
     function resolveEpochInflationTransfer(uint _epochNumber) public onlyOwner returns (uint) {
-        require(_epochNumber < getCurrentEpoch(), "Epoch greater than the current epoch");
+        require(_epochNumber < getCurrentEpochNumber(), "Epoch greater than the current epoch");
         Epoch storage epoch = epochs[_epochNumber];
         require(!epoch.resolved, "Epoch has not been resolved yet");
 
@@ -102,20 +104,26 @@ contract Bank {
     // Getters
     // -------
 
-    function getCurrentEpochInflation() public view returns (uint epochInflation) {
-        return token.balanceOf(this).div(INFLATION_DENOMINATOR);
-    }
-
     /**
-    @dev                    Returns the current epoch number
+    @dev        Returns the current epoch number
+    @notice     Invoked during Registry.resolveChallenge()
     */
-    function getCurrentEpoch() public view returns (uint epoch) {
+    function getCurrentEpochNumber() public view returns (uint epochNumber) {
         // (block.timestamp - this.birthdate) / epoch_duration
         return (now.sub(BIRTH_DATE)).div(EPOCH_DURATION);
     }
 
     /**
+    @dev        Returns the current epoch inflation rewards
+    @notice     Invoked during Registry.claimInflationRewards() via Bank.resolveEpochInflationTransfer()
+    */
+    function getCurrentEpochInflation() public view returns (uint epochInflation) {
+        return token.balanceOf(this).div(INFLATION_DENOMINATOR);
+    }
+
+    /**
     @dev                    Returns the current details of an epoch: tokens, inflation, and whether it is resolved
+    @notice                 Invoked during Registry.claimInflationRewards()
     @param _epochNumber     The epoch number being examined
     */
     function getEpochDetails(uint _epochNumber) public view returns (uint tokens, uint inflation, bool resolved) {
@@ -124,6 +132,7 @@ contract Bank {
 
     /**
     @dev                    Returns the number of tokens a voter voted within one epoch
+    @notice                 Invoked during Bank.getEpochInflationVoterRewards()
     @param _epochNumber     The epoch number being examined
     @param _voter           The address of a voter who claimed rewards during an epoch
     */
@@ -133,6 +142,7 @@ contract Bank {
 
     /**
     @dev                    Returns the number of tokens an epoch will reward to a voter during epoch inflation
+    @notice                 Invoked during Registry.claimInflationRewards()
     @param _epochNumber     The epoch number being examined
     @param _voter           The address of a voter who claimed rewards during an epoch
     */
