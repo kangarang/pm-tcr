@@ -1,41 +1,90 @@
 # Participation-Mined Token-Curated Registry
 
-[ ![Codeship Status for skmgoldin/tcr](https://app.codeship.com/projects/b140cce0-ac77-0135-0738-52e8b96e2dec/status?branch=master)](https://app.codeship.com/projects/257003)
+Participation-Mined Token-Curated Registry is a fork of the original [token-curated registry (TCR)](https://medium.com/@ilovebagels/token-curated-registries-1-0-61a232f8dac7) and loosely follows the specifications found in the original [Owner's Manual](https://github.com/skmgoldin/tcr/blob/master/owners_manual.md).
 
-A hash-keyed [token-curated registry (TCR)](https://medium.com/@ilovebagels/token-curated-registries-1-0-61a232f8dac7). [Owner's Manual available](https://github.com/skmgoldin/tcr/blob/master/owners_manual.md).
+---
 
-## Initialize
-The only environmental dependency you need is Node. Presently we can guarantee this all works with Node 8.
-```
-npm install
-npm run compile
-```
+## Overview / key differences
 
-## Tests
-The repo has a comprehensive test suite. You can run it with `npm run test`. To run the tests with the RPC logs, use `npm run test gas`.
+PM-TCR has [epochs](<https://en.wikipedia.org/wiki/Epoch_(reference_date)>). The [Registry](./contracts/Registry.sol) contract has exclusive ownership of a [Bank](./contracts/Bank.sol) contract, with reserve tokens released on a regular schedule (once per epoch), effectively inflating the token's liquid supply without increasing the token's total supply. Majority faction voters effectively earn 'inflation rewards' for their curation participation per epoch.
 
-## Composition of the repo
-The repo is composed as a Truffle project, and is largely idiomatic to Truffle's conventions. The tests are in the `test` directory, the contracts are in the `contracts` directory and the migrations (deployment scripts) are in the `migrations` directory. Furthermore there is a `conf` directory containing json files where deployments can be parameterized.
+#### Hardcoded storage values:
 
-## Deploying your own TCR
-<!-- deprecated, needs rewording -->
-<!-- To deploy your own TCR, first open up `conf/config.json`. The `paramDefaults` object in the config JSON will specify the starting parameters your TCR is deployed with. In the `token` object, set `deployToken` to `true` if you want to deploy this TCR's token as part of the TCR deployment. You can specifiy initial recipients of the token in the `tokenHolders` array. If you have already deployed a token, set `deployToken` to `false` and provide the token's address in the `address` property. The token should be EIP20. -->
+- `EPOCH_DURATION`: The time between 2 epochs; currently implemented as 30 days, or 2592000 seconds
 
-The `package.json` includes scripts for deploying to ganache-cli, rinkeby, and mainnet. Modify `truffle.js` and `package.json` if you need other networks. You'll need a `secrets.json` file with a funded mnemonic on the `m/44'/60'/0'/0/0` HD path in the root of the repo to deploy. Your `secrets.json` should look like this:
+- `INFLATION_DENOMINATOR`: Used to determine inflation rewards per epoch
 
-```json
-{
-  "mnemonic": "my good mnemonic ..."
-}
-```
+- `BIRTH_DATE`: The Unix timestamp of the block the Bank contract was deployed
 
-If you prefer to use an environment variable, your `.bashrc` or `.bash_profile` should look something like:
+#### During challenge resolution:
 
-```bash
-export MNEMONIC='my good mnemonic ...'
-```
+- The epoch number is stored as: `challenge.epochNumber = (block.timestamp - BIRTH_DATE) / EPOCH_DURATION`
 
-You can use [https://iancoleman.io/bip39/](https://iancoleman.io/bip39/) to generate a mnemonic and derive its `m/44'/60'/0'/0/0` address.
+- The epoch inflation is stored as: `epoch.inflation = token.balanceOf(Bank) / INFLATION_DENOMINATOR`
+
+- The total number of tokens used for voting by the majority faction voters is stored as: `epoch.tokens += totalWinningTokens`
+
+#### During claimReward:
+
+- The number of tokens a majority faction voter used for voting in a given challenge/epoch is stored as: `epoch.voterTokens[voter] += numTokens`
+
+#### Claim inflation rewards:
+
+In addition to claiming rewards during a challenge, after an epoch ends, a majority faction voter can execute `Bank.claimInflationRewards`, which will transfer to the voter an amount of inflation reward tokens proportional to their token weight during that epoch:
+
+- `epochInflationVoterRewards = epoch.voterTokens[voter] / epoch.tokens * epoch.inflation`
+
+---
+
+## Getting started
+
+Configuration for deployment and contract parameterization is located in the [conf](./conf) directory.
+
+Install node and ethpm dependencies:
+
+    npm install
+
+Compile truffle contracts:
+
+    npm run compile
+
+Run truffle tests on `localhost:7545`:
+
+    npm test
+
+Run truffle tests with RPC logs:
+
+    npm test gas
+
+Run solidity-coverage:
+
+    npm run coverage
+
+---
+
+## Deployment
+
+Scripts are available in [package.json](./package.json).
+
+Note: since [v1.1.0](https://github.com/skmgoldin/tcr/releases/tag/v1.1.0), only the factory contracts are deployed during `truffle migrate`.
+
+This repo requires you have a mnemonic phrase exported as an environment variable called MNEMONIC, e.g. in your `.bash_profile`:
+
+    export MNEMONIC='super entropic mnemonic ...'
+
+You can use [https://iancoleman.io/bip39/](https://iancoleman.io/bip39/) to generate a mnemonic and derive its accounts.
+
+To deploy to a local Ganache instance, your mnemonic must also be exposed to Ganache:
+
+    ganache-cli -m $MNEMONIC
+
+Deploy factory contracts to a network:
+
+    npm run deploy-[network]
+
+Spawn proxy contracts to a network (requires a deployed `RegistryFactory`):
+
+    npm run deploy-proxies:[network]
 
 ## Deploy proxies
 Note: since [v1.1.0](https://github.com/skmgoldin/tcr/releases/tag/v1.1.0), only the factory contracts are deployed during `truffle migrate`. To spawn proxy contracts using a deployed RegistryFactory, execute the snippet in [/scripts](./scripts) by running:
@@ -45,5 +94,5 @@ npm run deploy-proxies:[network]
 ```
 
 ## Packages
-The repo consumes several EPM packages. `dll` and `attrstore` are libraries used in PLCRVoting's doubly-linked list abstraction. `tokens` provides an ERC20-comaptible token implementation. `plcr-revival` features batched executions for some transactions. All packages are installed automatically when running `npm install`.
 
+The repo consumes several EPM packages. `dll` and `attrstore` are libraries used in PLCRVoting's doubly-linked list abstraction. `tokens` provides an ERC20-comaptible token implementation. `plcr-revival` features batched executions for certain transactions. All EPM packages are installed automatically upon `npm install`.
