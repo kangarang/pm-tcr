@@ -1,10 +1,10 @@
-node_modules/*
-build/*
-truffle.js
-*.swp
+node_modules/
+build/
 installed_contracts/
 conf/
 coverage/
+
+*.swp
+
 coverage.json
 notes.md
-builds/

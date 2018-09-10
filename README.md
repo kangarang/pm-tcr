@@ -74,7 +74,7 @@ This repo requires you have a mnemonic phrase exported as an environment variabl
 
 You can use [https://iancoleman.io/bip39/](https://iancoleman.io/bip39/) to generate a mnemonic and derive its accounts.
 
-To deploy to a local Ganache instance, your mnemonic must also be exposed to Ganache:
+To deploy to a local [Ganache](https://github.com/trufflesuite/ganache-cli) instance, your mnemonic must also be exposed to Ganache:
 
     ganache-cli -m $MNEMONIC
 
@@ -82,16 +82,11 @@ Deploy factory contracts to a network:
 
     npm run deploy-[network]
 
-Spawn proxy contracts to a network (requires a deployed `RegistryFactory`):
+Spawn proxy contracts to a network using a deployed RegistryFactory:
 
     npm run deploy-proxies:[network]
 
-## Deploy proxies
-Note: since [v1.1.0](https://github.com/skmgoldin/tcr/releases/tag/v1.1.0), only the factory contracts are deployed during `truffle migrate`. To spawn proxy contracts using a deployed RegistryFactory, execute the snippet in [/scripts](./scripts) by running:
-
-```
-npm run deploy-proxies:[network]
-```
+---
 
 ## Packages
 
