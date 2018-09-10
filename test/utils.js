@@ -95,12 +95,15 @@ const utils = {
 
   // adapted from: https://github.com/gnosis/safe-contracts/blob/master/test/utils.js
   logGasUsage: (subject, transactionOrReceipt) => {
+    /* eslint-disable no-console */
     const receipt = transactionOrReceipt.receipt || transactionOrReceipt;
     console.log(`Gas costs for ${subject}:`);
     console.log(`    ${receipt.gasUsed}`);
+    /* eslint-enable no-console */
   },
 
   logEvents: (subject, receipt) => {
+    /* eslint-disable no-console */
     console.log(`Events for ${subject}:`);
     receipt.logs.forEach((log, index) => {
       console.log(`${index} ${log.event}:`);
@@ -110,6 +113,7 @@ const utils = {
       });
       console.log('');
     });
+    /* eslint-enable no-console */
   },
 
   logGasAndEvents: (subject, receipt) => {
@@ -349,10 +353,6 @@ const utils = {
     // Update status
     await utils.as(applicant, registry.updateStatus, listingHash);
     return pollID;
-  },
-
-  multiSend: async (argObj) => {
-    console.log('argObj:', argObj);
   },
 };
 
