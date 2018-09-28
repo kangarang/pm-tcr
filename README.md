@@ -1,4 +1,6 @@
 # Participation-Mined Token-Curated Registry
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkangarang%2Fpm-tcr.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkangarang%2Fpm-tcr?ref=badge_shield)
+
 
 Participation-Mined Token-Curated Registry is a fork of the original [token-curated registry (TCR)](https://medium.com/@ilovebagels/token-curated-registries-1-0-61a232f8dac7) and loosely follows the specifications found in the original [Owner's Manual](https://github.com/skmgoldin/tcr/blob/master/owners_manual.md).
 
@@ -91,3 +93,7 @@ Spawn proxy contracts to a network using a deployed RegistryFactory:
 ## Packages
 
 The repo consumes several EPM packages. `dll` and `attrstore` are libraries used in PLCRVoting's doubly-linked list abstraction. `tokens` provides an ERC20-comaptible token implementation. `plcr-revival` features batched executions for certain transactions. All EPM packages are installed automatically upon `npm install`.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkangarang%2Fpm-tcr.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkangarang%2Fpm-tcr?ref=badge_large)
