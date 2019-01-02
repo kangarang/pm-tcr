@@ -143,6 +143,8 @@ const utils = {
         paramConfig.pVoteQuorum,
       ],
       config.name,
+      config.epochDuration,
+      config.inflationDenominator,
     );
 
     const {

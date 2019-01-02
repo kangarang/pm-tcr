@@ -4,6 +4,7 @@
 const EIP20 = artifacts.require('tokens/eip20/EIP20.sol');
 const RegistryFactory = artifacts.require('./RegistryFactory.sol');
 const Registry = artifacts.require('./Registry.sol');
+const Bank = artifacts.require('./Bank.sol');
 const fs = require('fs');
 
 const config = JSON.parse(fs.readFileSync('./conf/config.json'));
@@ -49,6 +50,8 @@ contract('RegistryFactory', (accounts) => {
         tokenParams.symbol,
         parameters,
         'NEW TCR',
+        config.epochDuration,
+        config.inflationDenominator,
         { from: accounts[0] },
       );
       const { creator } = registryReceipt.logs[0].args;
@@ -72,6 +75,11 @@ contract('RegistryFactory', (accounts) => {
       // verify: registry's creator
       assert.strictEqual(creator, accounts[0], 'the creator emitted in the newRegistry event ' +
         'not correspond to the one which sent the creation transaction');
+
+      const bank = Bank.at(await registry.bank.call());
+      const epochDuration = await bank.EPOCH_DURATION.call();
+
+      assert.strictEqual(epochDuration.toString(), config.epochDuration.toString(), 'incorrect bank epoch duration.');
     });
   });
 });

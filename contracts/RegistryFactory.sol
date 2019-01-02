@@ -29,13 +29,15 @@ contract RegistryFactory {
     function newRegistryBYOToken(
         EIP20 _token,
         uint[] _parameters,
-        string _name
+        string _name,
+        uint _epochDuration,
+        uint _inflationDenominator
     ) public returns (Registry) {
         Parameterizer parameterizer = parameterizerFactory.newParameterizerBYOToken(_token, _parameters);
         PLCRVoting plcr = parameterizer.voting();
 
         Registry registry = Registry(proxyFactory.createProxy(canonizedRegistry, ""));
-        registry.init(_token, plcr, parameterizer, _name);
+        registry.init(_token, plcr, parameterizer, _name, _epochDuration, _inflationDenominator);
 
         emit NewRegistry(msg.sender, _token, plcr, parameterizer, registry);
         return registry;
@@ -55,7 +57,9 @@ contract RegistryFactory {
         uint8 _decimals,
         string _symbol,
         uint[] _parameters,
-        string _registryName
+        string _registryName,
+        uint _epochDuration,
+        uint _inflationDenominator
     ) public returns (Registry) {
         // Creates a new EIP20 token & transfers the supply to creator (msg.sender)
         // Deploys & initializes (1) PLCRVoting contract & (2) Parameterizer contract
@@ -66,7 +70,7 @@ contract RegistryFactory {
 
         // Create & initialize a new Registry contract
         Registry registry = Registry(proxyFactory.createProxy(canonizedRegistry, ""));
-        registry.init(token, plcr, parameterizer, _registryName);
+        registry.init(token, plcr, parameterizer, _registryName, _epochDuration, _inflationDenominator);
 
         emit NewRegistry(msg.sender, token, plcr, parameterizer, registry);
         return registry;

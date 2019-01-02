@@ -53,6 +53,8 @@ contract('RegistryFactory', (accounts) => {
         token.address,
         parameters,
         'NEW TCR',
+        config.epochDuration,
+        config.inflationDenominator,
         { from: accounts[0] },
       );
       const { creator } = registryReceipt.logs[0].args;

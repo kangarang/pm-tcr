@@ -15,9 +15,10 @@ contract Bank {
 
     // Global Variables
     EIP20Interface public token;
-    uint public BIRTH_DATE; // set once on init
-    uint public constant EPOCH_DURATION = 2592000; // 1 month (HARD)
-    uint public constant INFLATION_DENOMINATOR = 10000; // HARD
+    // set once on init
+    uint public BIRTH_DATE;
+    uint public EPOCH_DURATION;
+    uint public INFLATION_DENOMINATOR;
     address public owner;
 
     struct Epoch {
@@ -37,17 +38,18 @@ contract Bank {
     }
 
     // TODO: convert to factory/proxy convention
-    // TODO: accept EPOCH_DURATION and INFLATION_DENOMINATOR as init args
     /**
     @dev            Initializer. Can only be called once.
     @notice         Sets the owner, the ERC20 token, and the BIRTH_DATE
     @param _token   The address where the ERC20 token contract is deployed
     */
-    constructor(address _token) public {
+    constructor(address _token, uint _epochDuration, uint _inflationDenominator) public {
         require(_token != 0 && address(token) == 0, "Token should currently be zero & not set to zero");
         owner = msg.sender;
         token = EIP20Interface(_token);
         BIRTH_DATE = now;
+        EPOCH_DURATION = _epochDuration;
+        INFLATION_DENOMINATOR = _inflationDenominator;
     }
 
     /**

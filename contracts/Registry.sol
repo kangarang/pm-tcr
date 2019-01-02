@@ -65,7 +65,14 @@ contract Registry {
     @dev Initializer. Can only be called once.
     @param _token The address where the ERC20 token contract is deployed
     */
-    function init(address _token, address _voting, address _parameterizer, string _name) public {
+    function init(
+        address _token,
+        address _voting,
+        address _parameterizer,
+        string _name,
+        uint _epochDuration,
+        uint _inflationDenominator
+    ) public {
         require(_token != 0 && address(token) == 0, "Token should currently be zero & not set to zero");
         require(_voting != 0 && address(voting) == 0, "Voting should currently be zero & not set to zero");
         require(_parameterizer != 0 && address(parameterizer) == 0, "Parameterizer should currently be zero & not set to zero");
@@ -73,7 +80,7 @@ contract Registry {
         token = EIP20Interface(_token);
         voting = PLCRVoting(_voting);
         parameterizer = Parameterizer(_parameterizer);
-        bank = new Bank(token);
+        bank = new Bank(token, _epochDuration, _inflationDenominator);
         name = _name;
     }
 

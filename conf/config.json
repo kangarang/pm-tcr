@@ -1,4 +1,6 @@
 {
+  "epochDuration": 2592000,
+  "inflationDenominator": 10000,
   "paramDefaults": {
     "minDeposit": 10,
     "pMinDeposit": 100,
